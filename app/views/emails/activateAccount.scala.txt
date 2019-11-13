@@ -1,0 +1,4 @@
+@(user: models.User, url: String)(implicit messages: Messages)
+@messages("email.activate.account.hello", user.fullName.getOrElse("user"))
+
+@messages("email.activate.account.txt.text", url)
