@@ -9,7 +9,7 @@ import javax.inject.Inject
 import models.services.{AuthTokenService, UserService}
 import play.api.i18n.{I18nSupport, Messages}
 import play.api.libs.mailer.{Email, MailerClient}
-import play.api.mvc.{AbstractController, Action, AnyContent, BaseController, ControllerComponents, Result}
+import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents, Result}
 import utils.auth.DefaultEnv
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -31,7 +31,7 @@ class ActivateAccountController @Inject()(
     userService.retrieve(loginInfo).flatMap {
       case Some(user) if !user.activated =>
         authTokenService.create(user.userID).map { authToken =>
-          val url = routes.ActivateAccountController.activate(authToken.id).absoluteURL()
+          val url: String = routes.ActivateAccountController.activate(authToken.id).absoluteURL()
 
           mailerClient.send(Email(
             subject = Messages("email.activate.account.subject"),

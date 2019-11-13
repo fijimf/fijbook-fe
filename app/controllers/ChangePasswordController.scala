@@ -10,7 +10,7 @@ import javax.inject.Inject
 import play.api.i18n.I18nSupport
 import play.api.libs.json.Json
 import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
-import utils.auth.{DefaultEnv, WithProvider}
+import utils.auth.DefaultEnv
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -33,12 +33,7 @@ class ChangePasswordController @Inject()(
                                           val ex: ExecutionContext)
   extends AbstractController(components) with I18nSupport {
 
-  /**
-   * Changes the password.
-   *
-   * @return The result to display.
-   */
-  def submit = silhouette.SecuredAction(WithProvider[DefaultEnv#A](CredentialsProvider.ID)).async { implicit request =>
+  def submit: Action[AnyContent] = silhouette.SecuredAction.async { implicit request =>
     ChangePasswordForm.form.bindFromRequest.fold(
       form => Future.successful(BadRequest(Json.obj("errors" -> form.errors.map {
         _.messages.mkString(", ")
@@ -47,8 +42,8 @@ class ChangePasswordController @Inject()(
         val (currentPassword, newPassword) = password
         val credentials = Credentials(request.identity.email.getOrElse(""), currentPassword)
         credentialsProvider.authenticate(credentials).flatMap { loginInfo =>
-          val passwordInfo = passwordHasherRegistry.current.hash(newPassword)
-          authInfoRepository.update[PasswordInfo](loginInfo, passwordInfo).map { u =>
+          val passwordInfo: PasswordInfo = passwordHasherRegistry.current.hash(newPassword)
+          authInfoRepository.update[PasswordInfo](loginInfo, passwordInfo).map { _ =>
             Ok("")
           }
         }.recover {
@@ -59,7 +54,7 @@ class ChangePasswordController @Inject()(
     )
   }
 
-  def view: Action[AnyContent] = silhouette.SecuredAction(WithProvider[DefaultEnv#A](CredentialsProvider.ID)).async { implicit request =>
+  def view: Action[AnyContent] = silhouette.SecuredAction.async { implicit request =>
     Future.successful(Ok(views.html.changePassword(ChangePasswordForm.form, request.identity)))
   }
 

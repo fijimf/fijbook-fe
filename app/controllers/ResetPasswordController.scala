@@ -9,7 +9,6 @@ import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
 import forms.ResetPasswordForm
 import javax.inject.Inject
 import models.services.{AuthTokenService, UserService}
-import play.api.Logger
 import play.api.i18n.{I18nSupport, Messages}
 import play.api.libs.json.Json
 import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
@@ -44,29 +43,23 @@ class ResetPasswordController @Inject() (
    * @param token The token to identify a user.
    * @return The result to display.
    */
-  def submit(token: UUID) = silhouette.UnsecuredAction.async { implicit request =>
-    authTokenService.validate(token).flatMap { maybeToken =>
-      Logger.info(s"Token returned: $maybeToken")
-      maybeToken match {
-        case Some(authToken) =>
-          ResetPasswordForm.form.bindFromRequest.fold(
-            form => Future.successful(BadRequest(Json.obj("errors" -> form.errors.map {
-              _.messages.mkString(", ")
-            }))),
-            password => userService.retrieve(authToken.userID).flatMap { maybeUser =>
-              Logger.info(s"Maybe user returned: $maybeUser")
-              maybeUser match {
-                case Some(user) if user.loginInfo.providerID == CredentialsProvider.ID =>
-                  val passwordInfo = passwordHasherRegistry.current.hash(password)
-                  authInfoRepository.update[PasswordInfo](user.loginInfo, passwordInfo).map { _ =>
-                    Ok
-                  }
-                case _ => Future.successful(BadRequest(Json.obj("error" -> Messages("invalid.reset.link"))))
+  def submit(token: UUID): Action[AnyContent] = silhouette.UnsecuredAction.async { implicit request =>
+    authTokenService.validate(token).flatMap {
+      case Some(authToken) =>
+        ResetPasswordForm.form.bindFromRequest.fold(
+          form => Future.successful(BadRequest(Json.obj("errors" -> form.errors.map {
+            _.messages.mkString(", ")
+          }))),
+          password => userService.retrieve(authToken.userID).flatMap {
+            case Some(user) if user.loginInfo.providerID == CredentialsProvider.ID =>
+              val passwordInfo: PasswordInfo = passwordHasherRegistry.current.hash(password)
+              authInfoRepository.update[PasswordInfo](user.loginInfo, passwordInfo).map { _ =>
+                Ok
               }
-            }
-          )
-        case None => Future.successful(BadRequest(Json.obj("error" -> Messages("invalid.reset.link"))))
-      }
+            case _ => Future.successful(BadRequest(Json.obj("error" -> Messages("invalid.reset.link"))))
+          }
+        )
+      case None => Future.successful(BadRequest(Json.obj("error" -> Messages("invalid.reset.link"))))
     }
   }
 

@@ -2,33 +2,23 @@ package controllers
 
 import java.util.UUID
 
-import javax.inject.Inject
 import com.mohiva.play.silhouette.api._
 import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
 import com.mohiva.play.silhouette.api.services.AvatarService
-import com.mohiva.play.silhouette.api.util.PasswordHasher
+import com.mohiva.play.silhouette.api.util.{PasswordHasher, PasswordInfo}
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
 import forms.SignUpForm
+import javax.inject.Inject
 import models.User
 import models.services.{AuthTokenService, UserService}
 import play.api.i18n.{I18nSupport, Messages}
-import play.api.libs.json.Json
 import play.api.libs.mailer.{Email, MailerClient}
-import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
+import play.api.mvc._
 import utils.auth.DefaultEnv
 
 import scala.concurrent.{ExecutionContext, Future}
 
-/**
- * The `Sign Up` controller.
- *
- * @param components The ControllerComponents.
- * @param silhouette The Silhouette stack.
- * @param userService The user service implementation.
- * @param authInfoRepository The auth info repository implementation.
- * @param avatarService The avatar service implementation.
- * @param passwordHasher The password hasher implementation.
- */
+
 class SignUpController @Inject() (
   components: ControllerComponents,
   silhouette: Silhouette[DefaultEnv],
@@ -49,11 +39,11 @@ class SignUpController @Inject() (
     SignUpForm.form.bindFromRequest.fold(
       form=>Future.successful (BadRequest(views.html.signUp(form))),
       data => {
-        val result = Redirect(routes.SignUpController.view()).flashing("message"->Messages("sign.up.email.sent", data.email))
+        val result: Result = Redirect(routes.SignUpController.view()).flashing("message" -> Messages("sign.up.email.sent", data.email))
         val loginInfo = LoginInfo(CredentialsProvider.ID, data.email)
         userService.retrieve(loginInfo).flatMap {
           case Some(user) =>
-            val url = routes.SignInController.view().absoluteURL()
+            val url: String = routes.SignInController.view().absoluteURL()
             mailerClient.send(Email(
               subject = Messages("email.already.signed.up.subject"),
               from = Messages("email.from"),
@@ -64,7 +54,7 @@ class SignUpController @Inject() (
 
             Future.successful(result)
           case None =>
-            val authInfo = passwordHasher.hash(data.password)
+            val authInfo: PasswordInfo = passwordHasher.hash(data.password)
             val user = User(
               userID = UUID.randomUUID(),
               loginInfo=loginInfo,
@@ -82,7 +72,7 @@ class SignUpController @Inject() (
               authInfo <- authInfoRepository.add(loginInfo, authInfo)
               authToken <- authTokenService.create(user.userID)
             } yield {
-              val url = routes.ActivateAccountController.activate(authToken.id).absoluteURL()
+              val url: String = routes.ActivateAccountController.activate(authToken.id).absoluteURL()
               mailerClient.send(Email(
                 subject = Messages("email.sign.up.subject"),
                 from = Messages("email.from"),
@@ -101,8 +91,6 @@ class SignUpController @Inject() (
   }
 
   def view: Action[AnyContent] = silhouette.UnsecuredAction.async { implicit request =>
-
       Future.successful(Ok(views.html.signUp(SignUpForm.form)))
-
   }
 }
