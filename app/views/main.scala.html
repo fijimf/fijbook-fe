@@ -1,4 +1,4 @@
-@(title:String="Deep Fij")(content:Html)(implicit request:RequestHeader){
+@(title:String="Deep Fij")(content:Html)(implicit request:RequestHeader, flash:Flash){
 <!doctype html>
     <html lang="en">
         <head>
@@ -32,6 +32,7 @@
                     <div id="sidebar">
 
                     </div>
+                    <div id="flash">@{flash.get("message").getOrElse("")}</div>
                     <div role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4"  id="mainComponent" style="font-family: 'Roboto', serif;  font-weight: 500; color: #444;" >
                         @content
                     </div>

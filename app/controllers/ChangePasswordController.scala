@@ -7,7 +7,7 @@ import com.mohiva.play.silhouette.api.util.{Credentials, PasswordHasherRegistry,
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
 import forms.ChangePasswordForm
 import javax.inject.Inject
-import play.api.i18n.I18nSupport
+import play.api.i18n.{I18nSupport, Messages}
 import play.api.libs.json.Json
 import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
 import utils.auth.DefaultEnv
@@ -44,11 +44,11 @@ class ChangePasswordController @Inject()(
         credentialsProvider.authenticate(credentials).flatMap { loginInfo =>
           val passwordInfo: PasswordInfo = passwordHasherRegistry.current.hash(newPassword)
           authInfoRepository.update[PasswordInfo](loginInfo, passwordInfo).map { _ =>
-            Ok("")
+            Redirect(routes.ChangePasswordController.view()).flashing("message"->Messages("password.changed"))
           }
         }.recover {
           case e: ProviderException =>
-            BadRequest(e.toString)
+            Redirect(routes.ChangePasswordController.view()).flashing("message"->Messages("current.password.invalid"))
         }
       }
     )

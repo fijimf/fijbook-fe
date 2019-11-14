@@ -58,9 +58,9 @@ class ForgotPasswordController @Inject() (
                 bodyText = Some(views.txt.emails.resetPassword(user, url).body),
                 bodyHtml = Some(views.html.emails.resetPassword(user, url).body)
               ))
-              Ok
+              Redirect(routes.SignInController.view()).flashing("message"->Messages("reset.email.sent"))
             }
-          case _ => Future.successful(Ok)
+          case _ => Future.successful(Redirect(routes.SignInController.view()).flashing("message"->Messages("reset.email.sent")))
         }
       }
     )

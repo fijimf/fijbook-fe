@@ -3,7 +3,7 @@ import sbt._
 object Dependencies {
 
   object Version {
-    val silhouette = "5.0.3"
+    val silhouette = "6.1.0"
     val playVersion = play.core.PlayVersion.current
     val playMailerVersion = "6.0.1"
   }
