@@ -1,9 +1,15 @@
-@()(implicit request: RequestHeader, flash: Flash)
-@main("Deep Fij") {
-    <div>
-        <h3>Hello World.</h3>
-        <a href="@routes.SignInController.view()">Sign In</a>
-        <a href="@routes.SignUpController.view()">Sign Up</a>
-        <a href="@routes.SignOutController.signOut()">Sign Out</a>
-    </div>
-}
+@(user:Option[User])(implicit request: RequestHeader, flash: Flash)
+    @main("Deep Fij") {
+        <div>
+            <h3>Hello @{
+                user.map(_.firstName).getOrElse("")
+            }</h3>
+
+            @if(user.isDefined) {
+              <a href="@routes.SignOutController.signOut()">Sign Out</a>
+            } else {
+              <a href="@routes.SignInController.view()">Sign In</a>
+              <a href="@routes.SignUpController.view()">Sign Up</a>
+            }
+        </div>
+    }

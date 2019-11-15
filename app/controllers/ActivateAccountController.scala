@@ -26,8 +26,6 @@ class ActivateAccountController @Inject()(
   def send(email: String): Action[AnyContent] = silhouette.UnsecuredAction.async { implicit request =>
     val decodedEmail: String = URLDecoder.decode(email, "UTF-8")
     val loginInfo = LoginInfo(CredentialsProvider.ID, decodedEmail)
-    val result: Result = Redirect(routes.SignInController.view()).flashing("info" -> Messages("activation.email.sent", decodedEmail))
-
     userService.retrieve(loginInfo).flatMap {
       case Some(user) if !user.activated =>
         authTokenService.create(user.userID).map { authToken =>
@@ -40,9 +38,9 @@ class ActivateAccountController @Inject()(
             bodyText = Some(views.txt.emails.activateAccount(user, url).body),
             bodyHtml = Some(views.html.emails.activateAccount(user, url).body)
           ))
-          result
+          Redirect(routes.SignInController.view()).flashing("info" -> Messages("activation.email.sent", decodedEmail))
         }
-      case None => Future.successful(result)
+      case None => Future.successful(Redirect(routes.SignInController.view()).flashing("info" -> Messages("activation.email.sent", decodedEmail)))
     }
   }
 
