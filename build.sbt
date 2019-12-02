@@ -10,8 +10,9 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
 libraryDependencies ++= Seq(
   guice,
-  ehcache,
-  filters
+  filters,
+  ws,
+  caffeine
 )
 
 resolvers ++= Dependencies.resolvers
@@ -34,5 +35,9 @@ scalacOptions ++= Seq(
   "-Ywarn-nullary-override", // Warn when non-nullary overrides nullary, e.g. def foo() over def foo.
   "-Ywarn-numeric-widen", // Warn when numerics are widened.
   "-Ywarn-unused:-imports,_" // Play generates a routes with unused imports
+)
+
+javaOptions in Universal ++= Seq(
+  "-Dpidfile.path=/dev/null"
 )
 

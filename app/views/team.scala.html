@@ -1,0 +1,14 @@
+@import models.pages.TeamPage
+@(user:Option[User], tp:TeamPage)(implicit request: RequestHeader, flash: Flash)
+    @main(tp.t.name) {
+        <div>
+            <h1><img src=@tp.t.logoUrl  alt=@tp.t.name />@{tp.t.name}</h1>
+            <p>@tp.s.year</p>
+            <h3>@tp.overallRecord, @tp.conferenceRecord @tp.conferenceStandings.conference.name </h3>
+            <ul>
+            @for((g,or) <- tp.games) {
+                <li>@{components.gameLine(tp.t, g,or)}</li>
+            }
+            </ul>
+        </div>
+    }

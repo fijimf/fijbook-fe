@@ -1,0 +1,85 @@
+@(user:Option[User], sideBarTag:String="frontPage")
+<nav class="col-md-2 d-none d-md-block bg-light sidebar">
+    <div class="sidebar-sticky">
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link @if(sideBarTag=="frontPage") {active}" href="#">
+                    <span class="fa fa-newspaper">&nbsp;&nbsp;</span>
+                    Front Page
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link @if(sideBarTag=="teams") {active}" href="#">
+                    <span class="fa fa-basketball-ball">&nbsp;&nbsp;</span>
+                    Teams
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link @if(sideBarTag=="conferences") {active}" href="#">
+                    <span class="fa fa-table">&nbsp;&nbsp;</span>
+                    Conferences
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link @if(sideBarTag=="games") {active}" href="#">
+                    <span class="fa fa-calendar">&nbsp;&nbsp;</span>
+                    Games
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link @if(sideBarTag=="stats") {active}" href="#">
+                    <span class="fa fa-bar-chart-o">&nbsp;&nbsp;</span>
+                    Statistics
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link @if(sideBarTag=="blog") {active}" href="#">
+                    <span class="fa fa-grip-horizontal">&nbsp;&nbsp;</span>
+                    Blog
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link @if(sideBarTag=="about") {active}" href="#">
+                    <span class="fa fa-question-circle">&nbsp;&nbsp;</span>
+                    About
+                </a>
+            </li>
+            @if(user.flatMap(_.email).contains(System.getProperty("admin.email"))){
+                <li class="nav-item @if(sideBarTag=="admin"){active} ">
+                    <a class="nav-link" href="#">
+                        <span class="fa fa-angry">&nbsp;&nbsp;</span>
+                        Admin
+                    </a>
+                </li>
+            }
+        </ul>
+@*        @if(favLink.isDefined && displayUser.isLoggedIn ) {*@
+@*            @if(displayUser.favorites.map(_.link).contains(favLink.get.link)) {*@
+@*                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">*@
+@*                    <span>Favorites</span>*@
+@*                    <span ><a class="text-danger" title="Remove from favorites" href="@routes.UserController.deleteFavoriteLink(favLink.get.link )"><span class="fa fa-minus-circle">  </span></a></span>*@
+@*                </h6>*@
+
+@*            } else {*@
+@*                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">*@
+@*                    <span>Favorites</span>*@
+@*                    <span ><a class="text-success" title="Add to favorites" href="@routes.UserController.saveFavoriteLink(favLink.get.display,favLink.get.link )"><span class="fa fa-plus-circle">  </span></a></span>*@
+@*                </h6>*@
+@*            }*@
+@*        } else {*@
+            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                <span>Favorites</span>
+            </h6>
+@*        }*@
+@*        <ul class="nav flex-column mb-2">*@
+@*        @for(dl<-displayUser.favorites) {*@
+@*            <li class="nav-item">*@
+@*                <a class="nav-link" href="@dl.link">*@
+@*                    <span class="fa fa-star-o">&nbsp;&nbsp;</span>*@
+@*                    @dl.display*@
+@*                </a>*@
+@*            </li>*@
+@*        }*@
+@*        </ul>*@
+    </div>
+</nav>

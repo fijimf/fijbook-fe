@@ -1,4 +1,4 @@
-@(title:String="Deep Fij")(content:Html)(implicit request:RequestHeader, flash:Flash)
+@(title:String="Deep Fij", user:Option[User]=None, sideBarTag:String="")(content:Html)(implicit request:RequestHeader, flash:Flash)
 <!doctype html>
     <html lang="en">
         <head>
@@ -28,9 +28,11 @@
 
 
             <div class="container-fluid">
+            @components.menuBar(user)
+            </div>
                 <div class="row">
                     <div id="sidebar">
-
+@components.sideBar(user, sideBarTag)
                     </div>
                     <div id="flash">@{flash.get("message").getOrElse("")}</div>
                     <div role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4"  id="mainComponent" style="font-family: 'Roboto', serif;  font-weight: 500; color: #444;" >

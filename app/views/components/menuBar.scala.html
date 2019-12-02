@@ -1,0 +1,33 @@
+@import views.html.components.noUserMenu
+@import views.html.components.userMenu
+@(user:Option[User])(implicit request: RequestHeader)
+
+@defining(if(request.path.startsWith("/deepfij/admin")) "admin-highlight" else "") { extraClass =>
+
+    <nav class="navbar navbar-expand-sm navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow @extraClass">
+        <a class="navbar-brand col-sm-2 mr-0"href="@routes.ApplicationController.index()">
+            <img src="/assets/images/deepfij-tiny.png" width="30" height="34" class="d-inline-block mx-3" alt=""/>deepfij
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample03"
+        aria-controls="navbarsExample03" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"/>
+        </button>
+
+        <div class="collapse navbar-collapse col-sm-8" id="navbarsExample03">
+            <ul class="navbar-nav mr-auto">
+                <li class="navbar-text ml-2">
+                Quote goes here
+                </li>
+            </ul>
+            @if(user.isDefined){
+                @userMenu(user.get)
+            } else {
+                @noUserMenu()
+            }
+
+        </div>
+
+@*        <input name="q" class="form-control form-control-dark col-sm-2 mx-1 " type="text" placeholder="Search"*@
+@*        onchange="@{s"window.location.href = '${routes.SearchController.search()}?q="}' + this.value"/>*@
+    </nav>
+}

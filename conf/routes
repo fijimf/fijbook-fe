@@ -2,7 +2,9 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-GET         /                                controllers.ApplicationController.index
+GET         /                                                   controllers.ApplicationController.index
+GET         /deepfij/team/:key                                  controllers.ApplicationController.team(key:String)
+GET         /deepfij/$yyyymmdd<[\d{8}]>                         controllers.ApplicationController.date(yyyymmdd:Int)
 
 
 GET         /deepfij/signOut                                    controllers.SignOutController.signOut
