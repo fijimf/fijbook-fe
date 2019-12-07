@@ -15,3 +15,4 @@ case class AuthToken(
   id: UUID,
   userID: UUID,
   expiry: DateTime)
+

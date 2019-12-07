@@ -6,8 +6,8 @@
             <p>@tp.s.year</p>
             <h3>@tp.overallRecord, @tp.conferenceRecord @tp.conferenceStandings.conference.name </h3>
             <ul>
-            @for((g,or) <- tp.games) {
-                <li>@{components.gameLine(tp.t, g,or)}</li>
+            @for(gl <- tp.games){
+                @{components.gameLine(gl)}
             }
             </ul>
         </div>

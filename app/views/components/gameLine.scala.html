@@ -1,6 +1,12 @@
 @import com.fijimf.deepfij.schedule.model.Game
 @import com.fijimf.deepfij.schedule.model.Result
 @import com.fijimf.deepfij.schedule.model.Team
-@(t:Team, game:Game, ors:Option[Result])
+@import models.pages.GameLine
+@(g:GameLine)
 
-<span>@game.date</span>
+<span>@g.date</span>
+<span>@g.isAt</span>
+<span>@g.oppName</span>
+<span>@g.isWin</span>
+<span>@g.score</span>
+<span>@g.oppScore</span>
