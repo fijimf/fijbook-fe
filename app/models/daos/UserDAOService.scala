@@ -22,7 +22,7 @@ class UserDAOService @Inject()(ws: WSClient, configuration: Configuration, impli
   val host: String = configuration.get[String]("user.host")
   val port: Int = configuration.get[Int]("user.port")
 
-  implicit val authTokenBodyWritable: BodyWritable[User] =
+  implicit val userBodyWritable: BodyWritable[User] =
     BodyWritable[User](user => InMemoryBody(ByteString.fromString(user.asJson.noSpaces)), "text/plain")
 
   /**

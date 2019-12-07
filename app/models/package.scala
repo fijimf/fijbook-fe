@@ -1,5 +1,6 @@
 
 import com.mohiva.play.silhouette.api.LoginInfo
+import com.mohiva.play.silhouette.api.util.PasswordInfo
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import io.circe.{Decoder, Encoder}
 import org.joda.time.DateTime
@@ -16,4 +17,6 @@ package object models {
   implicit val loginInfoDecoder: Decoder[LoginInfo] = deriveDecoder[LoginInfo]
   implicit val userEncoder: Encoder.AsObject[User] = deriveEncoder[User]
   implicit val userDecoder: Decoder[User] = deriveDecoder[User]
+  implicit val passwordInfoEncoder: Encoder.AsObject[PasswordInfo] = deriveEncoder[PasswordInfo]
+  implicit val passwordInfoDecoder: Decoder[PasswordInfo] = deriveDecoder[PasswordInfo]
 }
