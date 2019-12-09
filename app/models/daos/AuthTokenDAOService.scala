@@ -49,7 +49,8 @@ class AuthTokenDAOService @Inject() (ws:WSClient, configuration: Configuration, 
    * @param dateTime The current date time.
    */
   def findExpired(dateTime: DateTime): Future[Seq[AuthToken]] = {
-    ws.url(s"http://$host:$port/expired/${dateTime.getMillis}")
+    ws.url(s"http://$host:$port/token/expired")
+      .withQueryStringParameters(("epochMillis", dateTime.getMillis.toString))
       .addHttpHeaders("Accept" -> "application/json")
       .withRequestTimeout(10000.millis)
       .get()
