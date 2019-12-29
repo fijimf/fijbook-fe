@@ -31,8 +31,8 @@ class AuthTokenDAOService @Inject() (ws:WSClient, configuration: Configuration, 
    * @return The found token or None if no token for the given ID could be found.
    */
   def find(id: UUID): Future[Option[AuthToken]] = {
-    val request = s"http://$host:$port/token/${id.toString}"
-    ws.url(request)
+    val requestString = s"http://$host:$port/token/${id.toString}"
+    ws.url(requestString)
       .addHttpHeaders("Accept" -> "application/json")
       .withRequestTimeout(10000.millis)
       .get()
@@ -41,10 +41,10 @@ class AuthTokenDAOService @Inject() (ws:WSClient, configuration: Configuration, 
           logger.info(resp.body)
           decode[Option[AuthToken]](resp.body)
         case 404 =>
-          logger.info(s"No auth token found for request $request")
+          logger.info(s"No auth token found for request $requestString")
           Either.right[Error, Option[AuthToken]](Option.empty[AuthToken])
         case r =>
-          logger.warn(s"$request returned status $r")
+          logger.warn(s"$requestString returned status $r")
           Either.right[Error, Option[AuthToken]](Option.empty[AuthToken])
       }).flatMap {
       case Left(thr) =>
