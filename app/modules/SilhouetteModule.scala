@@ -51,7 +51,7 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
     bind[Clock].toInstance(Clock())
 
     // Replace this with the bindings to your concrete DAOs
-    bind[DelegableAuthInfoDAO[PasswordInfo]].to[AuthInfoDaoService]
+    bind[DelegableAuthInfoDAO[PasswordInfo]].to[AuthInfoDAOService]
   }
 
   /**

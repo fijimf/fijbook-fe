@@ -16,7 +16,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.reflect.ClassTag
 
 
-class AuthInfoDaoService @Inject()(ws: WSClient, configuration: Configuration, implicit val executionContext: ExecutionContext) extends DelegableAuthInfoDAO[PasswordInfo] {
+class AuthInfoDAOService @Inject()(ws: WSClient, configuration: Configuration, implicit val executionContext: ExecutionContext) extends DelegableAuthInfoDAO[PasswordInfo] {
 
   implicit val classTag: ClassTag[PasswordInfo]=ClassTag(PasswordInfo.getClass)
 
