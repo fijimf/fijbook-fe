@@ -46,7 +46,7 @@ class ActivateAccountController @Inject()(
 
   def activate(token: UUID): Action[AnyContent] = silhouette.UnsecuredAction.async { implicit request =>
     authTokenService.validate(token).flatMap {
-      case Some(authToken) => userService.retrieve(authToken.userID).flatMap {
+      case Some(authToken) => userService.retrieve(authToken.userId).flatMap {
         case Some(user) if user.providerId == CredentialsProvider.ID =>
           userService.save(user.copy(activated = true)).map { _ =>
             Redirect(routes.SignInController.view()).flashing("success" -> Messages("account.activated"))

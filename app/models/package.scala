@@ -8,7 +8,7 @@ import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
 
 
 package object models {
-  val dateFormatter: DateTimeFormatter = DateTimeFormat.fullDateTime
+  val dateFormatter: DateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS")
   implicit val dateTimeDecoder: Decoder[DateTime] = Decoder.decodeString.map { s => DateTime.parse(s, dateFormatter) }
   implicit val dateTimeEncoder: Encoder[DateTime] = Encoder.encodeString.contramap { d => d.toString(dateFormatter) }
   implicit val authTokenEncoder: Encoder.AsObject[AuthToken] = deriveEncoder[AuthToken]

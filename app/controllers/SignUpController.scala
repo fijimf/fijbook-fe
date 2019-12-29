@@ -11,6 +11,7 @@ import forms.SignUpForm
 import javax.inject.Inject
 import models.User
 import models.services.{AuthTokenService, UserService}
+import play.api.{Configuration, Logging}
 import play.api.i18n.{I18nSupport, Messages}
 import play.api.libs.mailer.{Email, MailerClient}
 import play.api.mvc._
@@ -27,15 +28,19 @@ class SignUpController @Inject() (
   authTokenService: AuthTokenService,
   avatarService: AvatarService,
   passwordHasher: PasswordHasher,
+  configuration: Configuration,
   mailerClient: MailerClient)(implicit ec: ExecutionContext)
-  extends AbstractController(components) with I18nSupport {
-
+  extends AbstractController(components) with I18nSupport with Logging {
   /**
    * Handles the submitted JSON data.
    *
    * @return The result to display.
    */
   def submit: Action[AnyContent] = silhouette.UnsecuredAction.async { implicit request =>
+    logger.info(configuration.toString)
+    logger.warn(configuration.get[String]("play.mailer.user"))
+    logger.warn(configuration.get[String]("play.mailer.password"))
+    logger.info(configuration.toString)
     SignUpForm.form.bindFromRequest.fold(
       form=>Future.successful (BadRequest(views.html.signUp(form))),
       data => {
