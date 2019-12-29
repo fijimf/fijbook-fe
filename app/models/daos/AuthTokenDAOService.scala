@@ -3,17 +3,17 @@ package models.daos
 import java.util.UUID
 
 import akka.util.ByteString
-import javax.inject.Inject
-import models.AuthToken
-import models._
-import org.joda.time.DateTime
-import play.api.{Configuration, Logger}
-import play.api.libs.ws.{BodyWritable, InMemoryBody, WSClient}
-
-import scala.concurrent.{ExecutionContext, Future}
-import scala.concurrent.duration._
+import cats.implicits._
 import io.circe.parser.decode
 import io.circe.syntax._
+import javax.inject.Inject
+import models.{AuthToken, _}
+import org.joda.time.DateTime
+import play.api.libs.ws.{BodyWritable, InMemoryBody, WSClient}
+import play.api.{Configuration, Logger}
+
+import scala.concurrent.duration._
+import scala.concurrent.{ExecutionContext, Future}
 
 
 class AuthTokenDAOService @Inject() (ws:WSClient, configuration: Configuration, implicit val executionContext: ExecutionContext) extends AuthTokenDAO {
@@ -31,15 +31,26 @@ class AuthTokenDAOService @Inject() (ws:WSClient, configuration: Configuration, 
    * @return The found token or None if no token for the given ID could be found.
    */
   def find(id: UUID): Future[Option[AuthToken]] = {
-    ws.url(s"http://$host:$port/token/${id.toString}")
+    val request = s"http://$host:$port/token/${id.toString}"
+    ws.url(request)
       .addHttpHeaders("Accept" -> "application/json")
       .withRequestTimeout(10000.millis)
       .get()
-      .map(resp => decode[Option[AuthToken]](resp.body)).flatMap {
+      .map(resp => resp.status match {
+        case 200 =>
+          logger.info(resp.body)
+          decode[Option[AuthToken]](resp.body)
+        case 404 =>
+          logger.info(s"No auth token found for request $request")
+          Either.right[Error, Option[AuthToken]](Option.empty[AuthToken])
+        case r =>
+          logger.warn(s"$request returned status $r")
+          Either.right[Error, Option[AuthToken]](Option.empty[AuthToken])
+      }).flatMap {
       case Left(thr) =>
         logger.error(s"Failed parsing AuthToken", thr)
         Future.failed[Option[AuthToken]](thr)
-      case Right(token) => Future.successful(token)
+      case Right(optToken) => Future.successful(optToken)
     }
   }
 
@@ -49,12 +60,20 @@ class AuthTokenDAOService @Inject() (ws:WSClient, configuration: Configuration, 
    * @param dateTime The current date time.
    */
   def findExpired(dateTime: DateTime): Future[Seq[AuthToken]] = {
-    ws.url(s"http://$host:$port/token/expired")
+    val requestString = s"http://$host:$port/token/expired"
+    ws.url(requestString)
       .withQueryStringParameters(("epochMillis", dateTime.getMillis.toString))
       .addHttpHeaders("Accept" -> "application/json")
       .withRequestTimeout(10000.millis)
       .get()
-      .map(resp => decode[List[AuthToken]](resp.body)).flatMap {
+      .map(resp => resp.status match {
+        case 200 =>
+          logger.info(resp.body)
+          decode[List[AuthToken]](resp.body)
+        case r =>
+          logger.warn(s"$requestString returned status $r")
+          Either.right[Error, List[AuthToken]](List.empty[AuthToken])
+      }).flatMap {
       case Left(thr) =>
         logger.error(s"Failed parsing AuthToken", thr)
         Future.failed[List[AuthToken]](thr)
@@ -73,7 +92,14 @@ class AuthTokenDAOService @Inject() (ws:WSClient, configuration: Configuration, 
       .addHttpHeaders("Accept" -> "application/json")
       .withRequestTimeout(10000.millis)
       .post(token)
-      .map(resp => decode[AuthToken](resp.body)).flatMap {
+      .map(resp => resp.status match {
+        case 200 =>
+          logger.info(resp.body)
+          decode[AuthToken](resp.body)
+        case r =>
+          logger.warn(s"Saving token returned status $r")
+          Either.left[Throwable, AuthToken](new RuntimeException)
+      }).flatMap {
       case Left(thr) =>
         logger.error(s"Failed parsing AuthToken", thr)
         Future.failed[AuthToken](thr)

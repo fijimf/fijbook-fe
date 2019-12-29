@@ -1,9 +1,8 @@
 package jobs
 
-import javax.inject.Inject
-
 import akka.actor._
 import com.mohiva.play.silhouette.api.util.Clock
+import javax.inject.Inject
 import jobs.AuthTokenCleaner.Clean
 import models.services.AuthTokenService
 import utils.Logger
@@ -21,35 +20,20 @@ class AuthTokenCleaner @Inject() (
   clock: Clock)
   extends Actor with Logger {
 
-  /**
-   * Process the received messages.
-   */
   def receive: Receive = {
     case Clean =>
-      val start = clock.now.getMillis
-      val msg = new StringBuffer("\n")
-      msg.append("=================================\n")
-      msg.append("Start to cleanup auth tokens\n")
-      msg.append("=================================\n")
+      val start: Long = clock.now.getMillis
+      logger.info("Start to cleanup auth tokens\n")
       service.clean.map { deleted =>
-        val seconds = (clock.now.getMillis - start) / 1000
-        msg.append("Total of %s auth tokens(s) were deleted in %s seconds".format(deleted.length, seconds)).append("\n")
-        msg.append("=================================\n")
-
-        msg.append("=================================\n")
-        logger.info(msg.toString)
+        val seconds: Long = (clock.now.getMillis - start) / 1000
+        logger.info("Total of %s auth tokens(s) were deleted in %s seconds".format(deleted.length, seconds))
       }.recover {
-        case e =>
-          msg.append("Couldn't cleanup auth tokens because of unexpected error\n")
-          msg.append("=================================\n")
-          logger.error(msg.toString, e)
+        case e => logger.error("Couldn't cleanup auth tokens because of unexpected error.", e)
       }
+    case _=>logger.error("Unknown message received by AuthTokenCleaner")
   }
 }
 
-/**
- * The companion object.
- */
 object AuthTokenCleaner {
   case object Clean
 }

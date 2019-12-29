@@ -45,7 +45,7 @@ class SignUpController @Inject() (
       form=>Future.successful (BadRequest(views.html.signUp(form))),
       data => {
         val result: Result = Redirect(routes.SignUpController.view()).flashing("message" -> Messages("sign.up.email.sent", data.email))
-        val loginInfo = LoginInfo(CredentialsProvider.ID, data.email)
+        val loginInfo: LoginInfo = LoginInfo(CredentialsProvider.ID, data.email)
         userService.retrieve(loginInfo).flatMap {
           case Some(user) =>
             val url: String = routes.SignInController.view().absoluteURL()
