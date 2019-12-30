@@ -61,9 +61,8 @@ class SignUpController @Inject() (
           case None =>
             val authInfo: PasswordInfo = passwordHasher.hash(data.password)
             val user = User(
-              userID = UUID.randomUUID(),
+              userId = UUID.randomUUID(),
               loginInfo=loginInfo,
-              providerId = CredentialsProvider.ID,
               firstName = Some(data.firstName),
               lastName = Some(data.lastName),
               fullName = Some(data.firstName + " " + data.lastName),
@@ -74,8 +73,8 @@ class SignUpController @Inject() (
             for {
               avatar <- avatarService.retrieveURL(data.email)
               user <- userService.save(user.copy(avatarURL = avatar))
-              authInfo <- authInfoRepository.add(loginInfo, authInfo)
-              authToken <- authTokenService.create(user.userID)
+              _ <- authInfoRepository.add(loginInfo, authInfo)
+              authToken <- authTokenService.create(user.userId)
             } yield {
               val url: String = routes.ActivateAccountController.activate(authToken.id).absoluteURL()
               mailerClient.send(Email(

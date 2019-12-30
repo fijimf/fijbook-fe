@@ -1,5 +1,6 @@
 package models.daos
 
+import cats.implicits._
 import akka.util.ByteString
 import com.mohiva.play.silhouette.api.LoginInfo
 import com.mohiva.play.silhouette.api.util.PasswordInfo
@@ -35,11 +36,22 @@ class AuthInfoDAOService @Inject()(ws: WSClient, configuration: Configuration, i
    * @return The retrieved auth info or None if no auth info could be retrieved for the given login info.
    */
   def find(loginInfo: LoginInfo): Future[Option[PasswordInfo]] = {
-    ws.url(s"http://$host:$port/authInfo/${loginInfo.providerID.toString}/${loginInfo.providerKey.toString}")
+    val requestString = s"http://$host:$port/authInfo/${loginInfo.providerID.toString}/${loginInfo.providerKey.toString}"
+    ws.url(requestString)
       .addHttpHeaders("Accept" -> "application/json")
       .withRequestTimeout(10000.millis)
       .get()
-      .map(resp => decode[Option[PasswordInfo]](resp.body)).flatMap {
+      .map(resp => resp.status match {
+        case 200 =>
+          logger.info(resp.body)
+          decode[Option[PasswordInfo]](resp.body)
+        case 404 =>
+          logger.info(s"No password info found for request $requestString")
+          Either.right[Error, Option[PasswordInfo]](Option.empty[PasswordInfo])
+        case r =>
+          logger.warn(s"$requestString returned status $r")
+          Either.right[Error, Option[PasswordInfo]](Option.empty[PasswordInfo])
+      }).flatMap {
       case Left(thr) =>
         logger.error(s"Failed parsing AuthToken", thr)
         Future.failed[Option[PasswordInfo]](thr)
@@ -55,11 +67,20 @@ class AuthInfoDAOService @Inject()(ws: WSClient, configuration: Configuration, i
    * @return The added auth info.
    */
   def add(loginInfo: LoginInfo, authInfo: PasswordInfo): Future[PasswordInfo] = {
-    ws.url(s"http://$host:$port/authInfo/${loginInfo.providerID.toString}/${loginInfo.providerKey.toString}")
+    val requestString = s"http://$host:$port/authInfo/${loginInfo.providerID.toString}/${loginInfo.providerKey.toString}"
+    ws.url(requestString)
       .addHttpHeaders("Accept" -> "application/json")
       .withRequestTimeout(10000.millis)
       .post(authInfo)
-      .map(resp => decode[PasswordInfo](resp.body)).flatMap {
+
+      .map(resp => resp.status match {
+        case 200 =>
+          logger.info(resp.body)
+          decode[PasswordInfo](resp.body)
+        case r =>
+          logger.warn(s"$requestString returned status $r")
+          Either.left[Throwable, PasswordInfo](new RuntimeException(s"$requestString"))
+      }).flatMap {
       case Left(thr) =>
         logger.error(s"Failed parsing AuthToken", thr)
         Future.failed[PasswordInfo](thr)
@@ -96,11 +117,20 @@ class AuthInfoDAOService @Inject()(ws: WSClient, configuration: Configuration, i
    * @return A future to wait for the process to be completed.
    */
   def remove(loginInfo: LoginInfo): Future[Unit] = {
-    ws.url(s"http://$host:$port/authInfo/${loginInfo.providerID.toString}/${loginInfo.providerKey.toString}")
+    val requestString = s"http://$host:$port/authInfo/${loginInfo.providerID.toString}/${loginInfo.providerKey.toString}"
+    ws.url(requestString)
       .addHttpHeaders("Accept" -> "application/json")
       .withRequestTimeout(10000.millis)
       .delete()
-      .map(resp => decode[Int](resp.body)).flatMap {
+
+      .map(resp => resp.status match {
+        case 200 =>
+          logger.info(resp.body)
+          decode[Int](resp.body)
+        case r =>
+          logger.warn(s"$requestString returned status $r")
+          Either.right[Error, Int](0)
+      }).flatMap {
       case Left(thr) =>
         logger.error(s"Failed parsing Int", thr)
         Future.failed[Unit](thr)

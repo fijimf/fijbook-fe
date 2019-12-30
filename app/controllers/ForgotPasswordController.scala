@@ -48,7 +48,7 @@ class ForgotPasswordController @Inject() (
         val loginInfo = LoginInfo(CredentialsProvider.ID, email)
         userService.retrieve(loginInfo).flatMap {
           case Some(user) if user.email.isDefined =>
-            authTokenService.create(user.userID).map { authToken =>
+            authTokenService.create(user.userId).map { authToken =>
               val url = s"${routes.ApplicationController.index.absoluteURL}#/resetPassword/${authToken.id}"
 
               mailerClient.send(Email(

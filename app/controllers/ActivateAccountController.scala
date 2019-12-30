@@ -28,7 +28,7 @@ class ActivateAccountController @Inject()(
     val loginInfo = LoginInfo(CredentialsProvider.ID, decodedEmail)
     userService.retrieve(loginInfo).flatMap {
       case Some(user) if !user.activated =>
-        authTokenService.create(user.userID).map { authToken =>
+        authTokenService.create(user.userId).map { authToken =>
           val url: String = routes.ActivateAccountController.activate(authToken.id).absoluteURL()
 
           mailerClient.send(Email(
@@ -47,7 +47,7 @@ class ActivateAccountController @Inject()(
   def activate(token: UUID): Action[AnyContent] = silhouette.UnsecuredAction.async { implicit request =>
     authTokenService.validate(token).flatMap {
       case Some(authToken) => userService.retrieve(authToken.userId).flatMap {
-        case Some(user) if user.providerId == CredentialsProvider.ID =>
+        case Some(user) if user.loginInfo.providerID == CredentialsProvider.ID =>
           userService.save(user.copy(activated = true)).map { _ =>
             Redirect(routes.SignInController.view()).flashing("success" -> Messages("account.activated"))
           }

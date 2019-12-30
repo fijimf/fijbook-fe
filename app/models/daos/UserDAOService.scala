@@ -3,6 +3,7 @@ package models.daos
 import java.util.UUID
 
 import akka.util.ByteString
+import cats.implicits._
 import com.mohiva.play.silhouette.api.LoginInfo
 import io.circe.parser.decode
 import io.circe.syntax._
@@ -32,13 +33,24 @@ class UserDAOService @Inject()(ws: WSClient, configuration: Configuration, impli
    * @return The found user or None if no user for the given login info could be found.
    */
   def find(loginInfo: LoginInfo): Future[Option[User]] = {
-    ws.url(s"http://$host:$port/user/${loginInfo.providerID.toString}/${loginInfo.providerKey.toString}")
+    val requestString = s"http://$host:$port/user/${loginInfo.providerID.toString}/${loginInfo.providerKey.toString}"
+    ws.url(requestString)
       .addHttpHeaders("Accept" -> "application/json")
       .withRequestTimeout(10000.millis)
       .get()
-      .map(resp => decode[Option[User]](resp.body)).flatMap {
+      .map(resp => resp.status match {
+        case 200 =>
+          logger.info(resp.body)
+          decode[Option[User]](resp.body)
+        case 404 =>
+          logger.info(s"No password info found for request $requestString")
+          Either.right[Error, Option[User]](Option.empty[User])
+        case r =>
+          logger.warn(s"$requestString returned status $r")
+          Either.right[Error, Option[User]](Option.empty[User])
+      }).flatMap {
       case Left(thr) =>
-        logger.error(s"Failed parsing AuthToken", thr)
+        logger.error(s"Failed parsing User", thr)
         Future.failed[Option[User]](thr)
       case Right(user) => Future.successful(user)
     }
@@ -51,13 +63,24 @@ class UserDAOService @Inject()(ws: WSClient, configuration: Configuration, impli
    * @return The found user or None if no user for the given ID could be found.
    */
   def find(userID: UUID): Future[Option[User]] = {
-    ws.url(s"http://$host:$port/user/${userID.toString}")
+    val requestString = s"http://$host:$port/user/${userID.toString}"
+    ws.url(requestString)
       .addHttpHeaders("Accept" -> "application/json")
       .withRequestTimeout(10000.millis)
       .get()
-      .map(resp => decode[Option[User]](resp.body)).flatMap {
+      .map(resp => resp.status match {
+        case 200 =>
+          logger.info(resp.body)
+          decode[Option[User]](resp.body)
+        case 404 =>
+          logger.info(s"No password info found for request $requestString")
+          Either.right[Error, Option[User]](Option.empty[User])
+        case r =>
+          logger.warn(s"$requestString returned status $r")
+          Either.right[Error, Option[User]](Option.empty[User])
+      }).flatMap {
       case Left(thr) =>
-        logger.error(s"Failed parsing AuthToken", thr)
+        logger.error(s"Failed parsing User", thr)
         Future.failed[Option[User]](thr)
       case Right(user) => Future.successful(user)
     }
@@ -71,13 +94,22 @@ class UserDAOService @Inject()(ws: WSClient, configuration: Configuration, impli
    * @return The saved user.
    */
   def save(user: User): Future[User] = {
-    ws.url(s"http://$host:$port/user/")
+    val requestString = s"http://$host:$port/user/"
+    ws.url(requestString)
       .addHttpHeaders("Accept" -> "application/json")
       .withRequestTimeout(10000.millis)
       .post(user)
-      .map(resp => decode[User](resp.body)).flatMap {
+
+      .map(resp => resp.status match {
+        case 200 =>
+          logger.info(resp.body)
+          decode[User](resp.body)
+        case r =>
+          logger.warn(s"$requestString returned status $r")
+          Either.left[Throwable, User](new RuntimeException(s"$requestString"))
+      }).flatMap {
       case Left(thr) =>
-        logger.error(s"Failed parsing AuthToken", thr)
+        logger.error(s"Failed parsing User", thr)
         Future.failed[User](thr)
       case Right(user) => Future.successful(user)
     }
