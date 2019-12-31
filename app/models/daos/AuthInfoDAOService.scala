@@ -26,8 +26,7 @@ class AuthInfoDAOService @Inject()(ws: WSClient, configuration: Configuration, i
   val port: Int = configuration.get[Int]("user.port")
 
   implicit val passwordInfoBodyWritable: BodyWritable[PasswordInfo] =
-    BodyWritable[PasswordInfo](passwordInfo => InMemoryBody(ByteString.fromString(passwordInfo.asJson.noSpaces)), "text/plain")
-
+    BodyWritable[PasswordInfo](passwordInfo => InMemoryBody(ByteString.fromString(passwordInfo.asJson.noSpaces)), "application/json")
 
   /**
    * Finds the auth info which is linked with the specified login info.
@@ -49,7 +48,7 @@ class AuthInfoDAOService @Inject()(ws: WSClient, configuration: Configuration, i
           logger.info(s"No password info found for request $requestString")
           Either.right[Error, Option[PasswordInfo]](Option.empty[PasswordInfo])
         case r =>
-          logger.warn(s"$requestString returned status $r")
+          logger.warn(s"GET $requestString returned status $r")
           Either.right[Error, Option[PasswordInfo]](Option.empty[PasswordInfo])
       }).flatMap {
       case Left(thr) =>
@@ -78,11 +77,11 @@ class AuthInfoDAOService @Inject()(ws: WSClient, configuration: Configuration, i
           logger.info(resp.body)
           decode[PasswordInfo](resp.body)
         case r =>
-          logger.warn(s"$requestString returned status $r")
+          logger.warn(s"POST $requestString returned status $r")
           Either.left[Throwable, PasswordInfo](new RuntimeException(s"$requestString"))
       }).flatMap {
       case Left(thr) =>
-        logger.error(s"Failed parsing AuthToken", thr)
+        logger.error(s"Failed parsing PasswordInfo", thr)
         Future.failed[PasswordInfo](thr)
       case Right(user) => Future.successful(user)
     }
@@ -128,7 +127,7 @@ class AuthInfoDAOService @Inject()(ws: WSClient, configuration: Configuration, i
           logger.info(resp.body)
           decode[Int](resp.body)
         case r =>
-          logger.warn(s"$requestString returned status $r")
+          logger.warn(s"DELETE $requestString returned status $r")
           Either.right[Error, Int](0)
       }).flatMap {
       case Left(thr) =>

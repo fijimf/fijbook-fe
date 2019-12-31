@@ -22,7 +22,7 @@ class AuthTokenDAOService @Inject() (ws:WSClient, configuration: Configuration, 
   val port: Int = configuration.get[Int]("user.port")
 
   implicit val authTokenBodyWritable: BodyWritable[AuthToken] =
-    BodyWritable[AuthToken](authToken=>InMemoryBody(ByteString.fromString(authToken.asJson.noSpaces)), "text/plain")
+    BodyWritable[AuthToken](authToken=>InMemoryBody(ByteString.fromString(authToken.asJson.noSpaces)), "application/json")
 
   /**
    * Finds a token by its ID.
@@ -44,7 +44,7 @@ class AuthTokenDAOService @Inject() (ws:WSClient, configuration: Configuration, 
           logger.info(s"No auth token found for request $requestString")
           Either.right[Error, Option[AuthToken]](Option.empty[AuthToken])
         case r =>
-          logger.warn(s"$requestString returned status $r")
+          logger.warn(s"GET $requestString returned status $r")
           Either.right[Error, Option[AuthToken]](Option.empty[AuthToken])
       }).flatMap {
       case Left(thr) =>
@@ -71,7 +71,7 @@ class AuthTokenDAOService @Inject() (ws:WSClient, configuration: Configuration, 
           logger.info(resp.body)
           decode[List[AuthToken]](resp.body)
         case r =>
-          logger.warn(s"$requestString returned status $r")
+          logger.warn(s"GET $requestString returned status $r")
           Either.right[Error, List[AuthToken]](List.empty[AuthToken])
       }).flatMap {
       case Left(thr) =>

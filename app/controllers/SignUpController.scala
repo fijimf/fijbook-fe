@@ -37,10 +37,8 @@ class SignUpController @Inject() (
    * @return The result to display.
    */
   def submit: Action[AnyContent] = silhouette.UnsecuredAction.async { implicit request =>
-    logger.info(configuration.toString)
-    logger.warn(configuration.get[String]("play.mailer.user"))
-    logger.warn(configuration.get[String]("play.mailer.password"))
-    logger.info(configuration.toString)
+    logger.warn(s"Mailer auth user: ${configuration.get[String]("play.mailer.user")}")
+    logger.warn(s"Mailer auth secret: ${configuration.get[String]("play.mailer.password")}")
     SignUpForm.form.bindFromRequest.fold(
       form=>Future.successful (BadRequest(views.html.signUp(form))),
       data => {
@@ -60,7 +58,7 @@ class SignUpController @Inject() (
             Future.successful(result)
           case None =>
             val authInfo: PasswordInfo = passwordHasher.hash(data.password)
-            val user = User(
+            val user: User = User(
               userId = UUID.randomUUID(),
               loginInfo=loginInfo,
               firstName = Some(data.firstName),

@@ -5,11 +5,12 @@ import java.util.UUID
 import akka.util.ByteString
 import cats.implicits._
 import com.mohiva.play.silhouette.api.LoginInfo
+import io.circe.{Json, Printer}
 import io.circe.parser.decode
 import io.circe.syntax._
 import javax.inject.Inject
 import models.{User, _}
-import play.api.libs.ws.{BodyWritable, InMemoryBody, WSClient}
+import play.api.libs.ws.{BodyWritable, InMemoryBody, JsonBodyWritables, WSClient, WSRequest}
 import play.api.{Configuration, Logger}
 
 import scala.concurrent.duration._
@@ -23,8 +24,8 @@ class UserDAOService @Inject()(ws: WSClient, configuration: Configuration, impli
   val host: String = configuration.get[String]("user.host")
   val port: Int = configuration.get[Int]("user.port")
 
-  implicit val userBodyWritable: BodyWritable[User] =
-    BodyWritable[User](user => InMemoryBody(ByteString.fromString(user.asJson.noSpaces)), "text/plain")
+  implicit val circeJsonBodyWritable: BodyWritable[Json] =
+    BodyWritable[Json](json => InMemoryBody(ByteString.fromString(Printer.noSpaces.print(json))), "application/json")
 
   /**
    * Finds a user by its login info.
@@ -46,7 +47,7 @@ class UserDAOService @Inject()(ws: WSClient, configuration: Configuration, impli
           logger.info(s"No password info found for request $requestString")
           Either.right[Error, Option[User]](Option.empty[User])
         case r =>
-          logger.warn(s"$requestString returned status $r")
+          logger.warn(s"GET $requestString returned status $r")
           Either.right[Error, Option[User]](Option.empty[User])
       }).flatMap {
       case Left(thr) =>
@@ -76,7 +77,7 @@ class UserDAOService @Inject()(ws: WSClient, configuration: Configuration, impli
           logger.info(s"No password info found for request $requestString")
           Either.right[Error, Option[User]](Option.empty[User])
         case r =>
-          logger.warn(s"$requestString returned status $r")
+          logger.warn(s"GET $requestString returned status $r")
           Either.right[Error, Option[User]](Option.empty[User])
       }).flatMap {
       case Left(thr) =>
@@ -94,19 +95,23 @@ class UserDAOService @Inject()(ws: WSClient, configuration: Configuration, impli
    * @return The saved user.
    */
   def save(user: User): Future[User] = {
-    val requestString = s"http://$host:$port/user/"
-    ws.url(requestString)
+    val requestString = s"http://$host:$port/user"
+    val request: WSRequest = ws.url(requestString)
       .addHttpHeaders("Accept" -> "application/json")
       .withRequestTimeout(10000.millis)
-      .post(user)
-
+      .withBody(user.asJson)
+    logger.warn(request.toString)
+    logger.warn(request.body.toString)
+    request.execute("POST")
+//      .post(user)
       .map(resp => resp.status match {
         case 200 =>
           logger.info(resp.body)
           decode[User](resp.body)
         case r =>
-          logger.warn(s"$requestString returned status $r")
-          Either.left[Throwable, User](new RuntimeException(s"$requestString"))
+          logger.warn(s"POST $requestString returned status $r")
+          logger.warn(resp.body)
+          Either.left[Throwable, User](new RuntimeException(s"POST $requestString"))
       }).flatMap {
       case Left(thr) =>
         logger.error(s"Failed parsing User", thr)
