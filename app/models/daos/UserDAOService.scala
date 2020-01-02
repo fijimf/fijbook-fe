@@ -96,14 +96,10 @@ class UserDAOService @Inject()(ws: WSClient, configuration: Configuration, impli
    */
   def save(user: User): Future[User] = {
     val requestString = s"http://$host:$port/user"
-    val request: WSRequest = ws.url(requestString)
+    ws.url(requestString)
       .addHttpHeaders("Accept" -> "application/json")
       .withRequestTimeout(10000.millis)
-      .withBody(user.asJson)
-    logger.warn(request.toString)
-    logger.warn(request.body.toString)
-    request.execute("POST")
-//      .post(user)
+      .post(user.asJson)
       .map(resp => resp.status match {
         case 200 =>
           logger.info(resp.body)

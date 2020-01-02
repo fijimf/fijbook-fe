@@ -4,6 +4,7 @@ import cats.implicits._
 import akka.util.ByteString
 import com.mohiva.play.silhouette.api.LoginInfo
 import com.mohiva.play.silhouette.api.util.PasswordInfo
+//import com.mohiva.play.silhouette.api.util.PasswordInfo
 import com.mohiva.play.silhouette.persistence.daos.DelegableAuthInfoDAO
 import io.circe.parser.decode
 import io.circe.syntax._
@@ -19,7 +20,7 @@ import scala.reflect.ClassTag
 
 class AuthInfoDAOService @Inject()(ws: WSClient, configuration: Configuration, implicit val executionContext: ExecutionContext) extends DelegableAuthInfoDAO[PasswordInfo] {
 
-  implicit val classTag: ClassTag[PasswordInfo]=ClassTag(PasswordInfo.getClass)
+  implicit val classTag: ClassTag[PasswordInfo]=ClassTag(classOf[PasswordInfo])
 
   val logger: Logger = Logger(getClass)
   val host: String = configuration.get[String]("user.host")

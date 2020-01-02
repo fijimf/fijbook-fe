@@ -88,7 +88,7 @@ class AuthTokenDAOService @Inject() (ws:WSClient, configuration: Configuration, 
    * @return The saved token.
    */
   def save(token: AuthToken): Future[AuthToken] = {
-    ws.url(s"http://$host:$port/token/")
+    ws.url(s"http://$host:$port/token")
       .addHttpHeaders("Accept" -> "application/json")
       .withRequestTimeout(10000.millis)
       .post(token)

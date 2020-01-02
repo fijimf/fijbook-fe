@@ -80,6 +80,7 @@ activate.account.text2 = Please follow the instructions in that email to activat
 activate.account.text3 = Click <a href="{0}">here</a> to send the activation email again.
 
 sign.up.email.sent = You''re almost done! We sent an activation mail to {0}. Please follow the instructions in the email to activate your account. If it doesn''t arrive, check your spam folder, or try to log in again to send another activation mail.
+sign.up.already.signed.up = The email {0} already has an account.  Click ''Forgot Password'' if you need to reset it.
 activation.email.sent = We sent another activation email to you at {0}. It might take a few minutes for it to arrive; be sure to check your spam folder.
 
 invalid.activation.link = The link isn't valid anymore! Please sign in to send the activation email again.

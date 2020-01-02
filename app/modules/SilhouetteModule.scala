@@ -120,8 +120,7 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
    * @return The auth info repository instance.
    */
   @Provides
-  def provideAuthInfoRepository(
-    passwordInfoDAO: DelegableAuthInfoDAO[PasswordInfo]): AuthInfoRepository = {
+  def provideAuthInfoRepository(passwordInfoDAO: DelegableAuthInfoDAO[PasswordInfo]): AuthInfoRepository = {
 
     new DelegableAuthInfoRepository(passwordInfoDAO)
   }
