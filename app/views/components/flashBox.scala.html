@@ -1,0 +1,8 @@
+@(f:Flash)
+@if(f.get("message").isDefined ) {
+    @defining(f.get("alert").getOrElse("primary")) { alertRole =>
+        <div id="flashBox" class="alert alert-@alertRole" role="alert">
+            @f.get("message").getOrElse("")
+        </div>
+    }
+}
