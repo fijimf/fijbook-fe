@@ -12,7 +12,10 @@ import play.api.i18n.I18nSupport
 import play.api.libs.ws._
 import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
 import play.api.{Configuration, Environment, Logging}
+import utils.ServiceConfig
 import utils.auth.DefaultEnv
+import io.circe.generic.semiauto._
+import io.circe.{Decoder, Encoder, ObjectEncoder}
 
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
@@ -28,11 +31,10 @@ class ApplicationController @Inject() (
                                         implicit val executionContext: ExecutionContext)
   extends AbstractController(components) with I18nSupport with UserAwareOps with Logging {
 
-  val host: String = configuration.get[String]("schedule.host")
-  val port: Int = configuration.get[Int]("schedule.port")
+  val svc = ServiceConfig.load("schedule", configuration)
 
   def getScheduleRoot: Future[ScheduleRoot] = cache.getOrElseUpdate("schedule.root", 90.seconds) {
-    ws.url(s"http://$host:$port/root")
+    ws.url(s"http://${svc.host}:${svc.port}/root")
       .addHttpHeaders("Accept" -> "application/json")
       .withRequestTimeout(10000.millis)
       .get()

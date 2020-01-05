@@ -12,6 +12,7 @@ import javax.inject.Inject
 import models.{User, _}
 import play.api.libs.ws.{BodyWritable, InMemoryBody, JsonBodyWritables, WSClient, WSRequest}
 import play.api.{Configuration, Logger}
+import utils.ServiceConfig
 
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
@@ -21,8 +22,7 @@ import scala.concurrent.{ExecutionContext, Future}
  */
 class UserDAOService @Inject()(ws: WSClient, configuration: Configuration, implicit val executionContext: ExecutionContext) extends UserDAO {
   val logger: Logger = Logger(getClass)
-  val host: String = configuration.get[String]("user.host")
-  val port: Int = configuration.get[Int]("user.port")
+  val svc: ServiceConfig = ServiceConfig.load("user", configuration)
 
   implicit val circeJsonBodyWritable: BodyWritable[Json] =
     BodyWritable[Json](json => InMemoryBody(ByteString.fromString(Printer.noSpaces.print(json))), "application/json")
@@ -34,7 +34,7 @@ class UserDAOService @Inject()(ws: WSClient, configuration: Configuration, impli
    * @return The found user or None if no user for the given login info could be found.
    */
   def find(loginInfo: LoginInfo): Future[Option[User]] = {
-    val requestString = s"http://$host:$port/user/${loginInfo.providerID.toString}/${loginInfo.providerKey.toString}"
+    val requestString = s"$svc/user/${loginInfo.providerID.toString}/${loginInfo.providerKey.toString}"
     ws.url(requestString)
       .addHttpHeaders("Accept" -> "application/json")
       .withRequestTimeout(10000.millis)
@@ -64,7 +64,7 @@ class UserDAOService @Inject()(ws: WSClient, configuration: Configuration, impli
    * @return The found user or None if no user for the given ID could be found.
    */
   def find(userID: UUID): Future[Option[User]] = {
-    val requestString = s"http://$host:$port/user/${userID.toString}"
+    val requestString = s"$svc/user/${userID.toString}"
     ws.url(requestString)
       .addHttpHeaders("Accept" -> "application/json")
       .withRequestTimeout(10000.millis)
@@ -95,7 +95,7 @@ class UserDAOService @Inject()(ws: WSClient, configuration: Configuration, impli
    * @return The saved user.
    */
   def save(user: User): Future[User] = {
-    val requestString = s"http://$host:$port/user"
+    val requestString = s"$svc/user"
     ws.url(requestString)
       .addHttpHeaders("Accept" -> "application/json")
       .withRequestTimeout(10000.millis)

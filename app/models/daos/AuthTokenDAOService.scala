@@ -11,6 +11,7 @@ import models.{AuthToken, _}
 import org.joda.time.DateTime
 import play.api.libs.ws.{BodyWritable, InMemoryBody, WSClient}
 import play.api.{Configuration, Logger}
+import utils.ServiceConfig
 
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
@@ -18,9 +19,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class AuthTokenDAOService @Inject() (ws:WSClient, configuration: Configuration, implicit val executionContext: ExecutionContext) extends AuthTokenDAO {
   val logger: Logger = Logger(getClass)
-  val host: String = configuration.get[String]("user.host")
-  val port: Int = configuration.get[Int]("user.port")
-
+  val svc: ServiceConfig = ServiceConfig.load("user", configuration)
   implicit val authTokenBodyWritable: BodyWritable[AuthToken] =
     BodyWritable[AuthToken](authToken=>InMemoryBody(ByteString.fromString(authToken.asJson.noSpaces)), "application/json")
 
@@ -31,7 +30,7 @@ class AuthTokenDAOService @Inject() (ws:WSClient, configuration: Configuration, 
    * @return The found token or None if no token for the given ID could be found.
    */
   def find(id: UUID): Future[Option[AuthToken]] = {
-    val requestString = s"http://$host:$port/token/${id.toString}"
+    val requestString = s"$svc/token/${id.toString}"
     ws.url(requestString)
       .addHttpHeaders("Accept" -> "application/json")
       .withRequestTimeout(10000.millis)
@@ -60,7 +59,7 @@ class AuthTokenDAOService @Inject() (ws:WSClient, configuration: Configuration, 
    * @param dateTime The current date time.
    */
   def findExpired(dateTime: DateTime): Future[Seq[AuthToken]] = {
-    val requestString = s"http://$host:$port/token/expired"
+    val requestString = s"$svc/token/expired"
     ws.url(requestString)
       .withQueryStringParameters(("epochMillis", dateTime.getMillis.toString))
       .addHttpHeaders("Accept" -> "application/json")
@@ -88,7 +87,7 @@ class AuthTokenDAOService @Inject() (ws:WSClient, configuration: Configuration, 
    * @return The saved token.
    */
   def save(token: AuthToken): Future[AuthToken] = {
-    ws.url(s"http://$host:$port/token")
+    ws.url(s"$svc/token")
       .addHttpHeaders("Accept" -> "application/json")
       .withRequestTimeout(10000.millis)
       .post(token)
@@ -114,7 +113,7 @@ class AuthTokenDAOService @Inject() (ws:WSClient, configuration: Configuration, 
    * @return A future to wait for the process to be completed.
    */
   def remove(id: UUID):Future[Unit] = {
-      ws.url(s"http://$host:$port/token/${id.toString}")
+      ws.url(s"$svc/token/${id.toString}")
         .addHttpHeaders("Accept" -> "application/json")
         .withRequestTimeout(10000.millis)
         .delete()

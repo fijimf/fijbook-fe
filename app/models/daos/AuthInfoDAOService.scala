@@ -4,6 +4,7 @@ import cats.implicits._
 import akka.util.ByteString
 import com.mohiva.play.silhouette.api.LoginInfo
 import com.mohiva.play.silhouette.api.util.PasswordInfo
+import utils.ServiceConfig
 //import com.mohiva.play.silhouette.api.util.PasswordInfo
 import com.mohiva.play.silhouette.persistence.daos.DelegableAuthInfoDAO
 import io.circe.parser.decode
@@ -23,9 +24,7 @@ class AuthInfoDAOService @Inject()(ws: WSClient, configuration: Configuration, i
   implicit val classTag: ClassTag[PasswordInfo]=ClassTag(classOf[PasswordInfo])
 
   val logger: Logger = Logger(getClass)
-  val host: String = configuration.get[String]("user.host")
-  val port: Int = configuration.get[Int]("user.port")
-
+  val svc: ServiceConfig = ServiceConfig.load("user", configuration)
   implicit val passwordInfoBodyWritable: BodyWritable[PasswordInfo] =
     BodyWritable[PasswordInfo](passwordInfo => InMemoryBody(ByteString.fromString(passwordInfo.asJson.noSpaces)), "application/json")
 
@@ -36,7 +35,7 @@ class AuthInfoDAOService @Inject()(ws: WSClient, configuration: Configuration, i
    * @return The retrieved auth info or None if no auth info could be retrieved for the given login info.
    */
   def find(loginInfo: LoginInfo): Future[Option[PasswordInfo]] = {
-    val requestString = s"http://$host:$port/authInfo/${loginInfo.providerID.toString}/${loginInfo.providerKey.toString}"
+    val requestString = s"$svc/authInfo/${loginInfo.providerID.toString}/${loginInfo.providerKey.toString}"
     ws.url(requestString)
       .addHttpHeaders("Accept" -> "application/json")
       .withRequestTimeout(10000.millis)
@@ -67,7 +66,7 @@ class AuthInfoDAOService @Inject()(ws: WSClient, configuration: Configuration, i
    * @return The added auth info.
    */
   def add(loginInfo: LoginInfo, authInfo: PasswordInfo): Future[PasswordInfo] = {
-    val requestString = s"http://$host:$port/authInfo/${loginInfo.providerID.toString}/${loginInfo.providerKey.toString}"
+    val requestString = s"$svc/authInfo/${loginInfo.providerID.toString}/${loginInfo.providerKey.toString}"
     ws.url(requestString)
       .addHttpHeaders("Accept" -> "application/json")
       .withRequestTimeout(10000.millis)
@@ -117,7 +116,7 @@ class AuthInfoDAOService @Inject()(ws: WSClient, configuration: Configuration, i
    * @return A future to wait for the process to be completed.
    */
   def remove(loginInfo: LoginInfo): Future[Unit] = {
-    val requestString = s"http://$host:$port/authInfo/${loginInfo.providerID.toString}/${loginInfo.providerKey.toString}"
+    val requestString = s"$svc/authInfo/${loginInfo.providerID.toString}/${loginInfo.providerKey.toString}"
     ws.url(requestString)
       .addHttpHeaders("Accept" -> "application/json")
       .withRequestTimeout(10000.millis)
