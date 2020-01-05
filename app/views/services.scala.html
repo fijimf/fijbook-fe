@@ -1,0 +1,44 @@
+@import com.fijimf.deepfij.schedule.util.ServerInfo
+@import utils.ServiceConfig
+@(services:List[(String,ServiceConfig, ServerInfo)])(implicit request: RequestHeader, flash: Flash)
+    @main("Deep Fij") {
+    <h1>Deepfij Services</h1>
+    <div>
+        <table class="table table-bordered table-sm">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Host</th>
+                    <th>Port</th>
+                    <th>Server</th>
+                    <th>Version</th>
+                    <th>Scala Version</th>
+                    <th>sbt Version</th>
+                    <th>Build Number</th>
+                    <th>Build Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+            @for(svc<-services){
+                <tr>
+                    <td>@{svc._1}</td>
+                    <td>@{svc._2.host}</td>
+                    <td>@{svc._2.port}</td>
+                    <td>@{svc._3.name}</td>
+                    <td>@{svc._3.version}</td>
+                    <td>@{svc._3.scalaVersion}</td>
+                    <td>@{svc._3.sbtVersion}</td>
+                    <td>@{svc._3.buildNumber}</td>
+                    <td>@{svc._3.builtAt}</td>
+                    @if(svc._3.isOk){
+                        <td class="text-success">OK</td>
+                    } else {
+                        <td class="text-danger">FAIL</td>
+                    }
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}

@@ -1,6 +1,7 @@
 package controllers
 
 import cats.implicits._
+import com.fijimf.deepfij.schedule.util.ServerInfo
 import com.mohiva.play.silhouette.api._
 import com.mohiva.play.silhouette.api.util.Clock
 import com.mohiva.play.silhouette.impl.providers._
@@ -40,12 +41,12 @@ class ServerStatusController @Inject()(
   extends AbstractController(components) with I18nSupport with UserAwareOps {
   val logger: Logger = Logger(getClass)
 
-  case class ServerInfo(name: String, version: String, scalaVersion: String, sbtVersion: String, buildNumber: Int, builtAt: String, isOk: Boolean)
+//  case class ServerInfo(name: String, version: String, scalaVersion: String, sbtVersion: String, buildNumber: Int, builtAt: String, isOk: Boolean)
 
   implicit val serverInfoDecoder = deriveDecoder[ServerInfo]
 
   def view: Action[AnyContent] = silhouette.UserAwareAction.async { implicit request =>
-    val futures: List[Future[(String, (ServiceConfig, ServerInfo))]] = ServiceConfig.loadAll(configuration).map { case (key: String, svc: ServiceConfig) => {
+    ServiceConfig.loadAll(configuration).map { case (key: String, svc: ServiceConfig) => {
       val requestString = s"$svc${svc.statusEndpoint}"
       ws.url(requestString)
         .addHttpHeaders("Accept" -> "application/json")
@@ -57,17 +58,14 @@ class ServerStatusController @Inject()(
           case _ =>
             Either.left[Throwable, ServerInfo](new RuntimeException("Unexpected return code"))
         }).map {
-        case Right(info) => key -> (svc, info)
+        case Right(info) => (key ,svc, info)
         case Left(thr) =>
           logger.error("requestString", thr)
-          key -> (svc, ServerInfo("-", "-", "-", "-", -1, "-", false))
+          (key,svc, ServerInfo("-", "-", "-", "-", -1, "-", false))
       }
     }
-    }.toList
-
-    futures.sequence.map(seq => {
-      println(seq)
-      Ok(views.html.index(user))
+    }.toList.sequence.map(svcs => {
+      Ok(views.html.services(svcs.sortBy(_._1)))
     })
   }
 }
