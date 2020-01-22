@@ -1,6 +1,6 @@
 @import models.pages.TeamPage
 @(user:Option[User], tp:TeamPage)(implicit request: RequestHeader, flash: Flash)
-    @main(tp.t.name) {
+    @main(tp.t.name,user) {
         <div>
             <h1><img src=@tp.t.logoUrl  alt=@tp.t.name />@{tp.t.name}</h1>
             <p>@tp.s.year</p>

@@ -1,7 +1,7 @@
 @import com.fijimf.deepfij.schedule.util.ServerInfo
 @import utils.ServiceConfig
-@(services:List[(String,ServiceConfig, ServerInfo)])(implicit request: RequestHeader, flash: Flash)
-    @main("Deep Fij") {
+@(services:List[(String,ServiceConfig, ServerInfo)], user:User)(implicit request: RequestHeader, flash: Flash)
+    @main("Services Status", Some(user)) {
     <h1>Deepfij Services</h1>
     <div>
         <table class="table table-bordered table-sm">

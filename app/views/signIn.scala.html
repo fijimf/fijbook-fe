@@ -3,7 +3,7 @@
 @(signInForm: Form[SignInForm.Data])(implicit request: RequestHeader, messages: Messages, flash: Flash)
 
 @import b3.inline.fieldConstructor
-@main(){
+@main("Sign In",None){
     <fieldset class="col-md-6 col-md-offset-3">
         <legend>@Messages("sign.in.credentials")</legend>
         @helper.form(action = routes.SignInController.submit()) {

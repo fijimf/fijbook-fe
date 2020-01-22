@@ -45,7 +45,7 @@ class ServerStatusController @Inject()(
 
   implicit val serverInfoDecoder = deriveDecoder[ServerInfo]
 
-  def view: Action[AnyContent] = silhouette.UserAwareAction.async { implicit request =>
+  def view: Action[AnyContent] = silhouette.SecuredAction.async { implicit request =>
     ServiceConfig.loadAll(configuration).map { case (key: String, svc: ServiceConfig) => {
       val requestString = s"$svc${svc.statusEndpoint}"
       ws.url(requestString)
@@ -65,7 +65,7 @@ class ServerStatusController @Inject()(
       }
     }
     }.toList.sequence.map(svcs => {
-      Ok(views.html.services(svcs.sortBy(_._1)))
+      Ok(views.html.services(svcs.sortBy(_._1), request.identity))
     })
   }
 }

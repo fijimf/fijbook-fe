@@ -1,5 +1,5 @@
 @(user:Option[User])(implicit request: RequestHeader, flash: Flash)
-    @main("Deep Fij") {
+    @main("Deep Fij", user) {
         <div>
             <h3>Hello @{
                 user.map(_.firstName).getOrElse("")
