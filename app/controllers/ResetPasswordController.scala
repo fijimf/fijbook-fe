@@ -47,9 +47,7 @@ class ResetPasswordController @Inject() (
     authTokenService.validate(token).flatMap {
       case Some(authToken) =>
         ResetPasswordForm.form.bindFromRequest.fold(
-          form => Future.successful(BadRequest(Json.obj("errors" -> form.errors.map {
-            _.messages.mkString(", ")
-          }))),
+          form => Future.successful(BadRequest(views.html.resetPassword(form,token))),
           password => userService.retrieve(authToken.userId).flatMap {
             case Some(user) if user.loginInfo.providerID == CredentialsProvider.ID =>
               val passwordInfo: PasswordInfo = passwordHasherRegistry.current.hash(password)

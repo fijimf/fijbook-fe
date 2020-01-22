@@ -43,13 +43,13 @@ class ForgotPasswordController @Inject() (
    */
   def submit: Action[AnyContent] = silhouette.UnsecuredAction.async { implicit request =>
     ForgotPasswordForm.form.bindFromRequest.fold(
-      form => Future.successful(BadRequest(Json.obj("errors" -> form.errors.map { _.messages.mkString(", ") }))),
+      form => Future.successful(BadRequest(views.html.forgotPassword(form))),
       email => {
         val loginInfo = LoginInfo(CredentialsProvider.ID, email)
         userService.retrieve(loginInfo).flatMap {
           case Some(user) if user.email.isDefined =>
             authTokenService.create(user.userId).map { authToken =>
-              val url = s"${routes.ApplicationController.index.absoluteURL}#/resetPassword/${authToken.id}"
+              val url = routes.ResetPasswordController.view(authToken.id).absoluteURL()
 
               mailerClient.send(Email(
                 subject = Messages("email.reset.password.subject"),
