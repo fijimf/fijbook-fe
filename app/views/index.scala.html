@@ -1,15 +1,6 @@
 @(user:Option[User])(implicit request: RequestHeader, flash: Flash)
     @main("Deep Fij", user) {
         <div>
-            <h3>Hello @{
-                user.map(_.firstName).getOrElse("")
-            }</h3>
-
-            @if(user.isDefined) {
-              <a href="@routes.SignOutController.signOut()">Sign Out</a>
-            } else {
-              <a href="@routes.SignInController.view()">Sign In</a>
-              <a href="@routes.SignUpController.view()">Sign Up</a>
-            }
+            <h1>Deep Fij</h1>
         </div>
     }

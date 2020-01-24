@@ -5,7 +5,6 @@ import com.mohiva.play.silhouette.api.util.Clock
 import javax.inject.Inject
 import jobs.AuthTokenCleaner.Clean
 import models.services.AuthTokenService
-import utils.Logger
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -18,8 +17,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class AuthTokenCleaner @Inject() (
   service: AuthTokenService,
   clock: Clock)
-  extends Actor with Logger {
-
+  extends Actor  {
+  val logger = play.api.Logger(classOf[AuthTokenCleaner])
   def receive: Receive = {
     case Clean =>
       val start: Long = clock.now.getMillis

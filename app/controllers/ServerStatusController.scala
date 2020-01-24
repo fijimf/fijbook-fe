@@ -46,26 +46,8 @@ class ServerStatusController @Inject()(
   implicit val serverInfoDecoder = deriveDecoder[ServerInfo]
 
   def view: Action[AnyContent] = silhouette.SecuredAction.async { implicit request =>
-    ServiceConfig.loadAll(configuration).map { case (key: String, svc: ServiceConfig) => {
-      val requestString = s"$svc${svc.statusEndpoint}"
-      ws.url(requestString)
-        .addHttpHeaders("Accept" -> "application/json")
-        .withRequestTimeout(10000.millis)
-        .get()
-        .map(resp => resp.status match {
-          case 200 =>
-            decode[ServerInfo](resp.body)
-          case _ =>
-            Either.left[Throwable, ServerInfo](new RuntimeException("Unexpected return code"))
-        }).map {
-        case Right(info) => (key ,svc, info)
-        case Left(thr) =>
-          logger.error("requestString", thr)
-          (key,svc, ServerInfo("-", "-", "-", "-", -1, "-", false))
-      }
-    }
-    }.toList.sequence.map(svcs => {
-      Ok(views.html.services(svcs.sortBy(_._1), request.identity))
+    ServiceConfig.refreshAll(configuration,ws).map(lst=>{
+      Ok(views.html.services(lst.toList.sortBy(_.key), request.identity))
     })
   }
 }
