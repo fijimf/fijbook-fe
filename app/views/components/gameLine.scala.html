@@ -1,12 +1,14 @@
-@import com.fijimf.deepfij.schedule.model.Game
-@import com.fijimf.deepfij.schedule.model.Result
-@import com.fijimf.deepfij.schedule.model.Team
 @import models.pages.GameLine
 @(g:GameLine)
-
+<li>
 <span>@g.date</span>
-<span>@g.isAt</span>
+    <span>@if(g.isAt) {
+        @@
+    } else {
+        vs.
+    }</span>
 <span>@g.oppName</span>
 <span>@g.isWin</span>
 <span>@g.score</span>
 <span>@g.oppScore</span>
+</li>

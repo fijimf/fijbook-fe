@@ -15,7 +15,15 @@ case class TeamPage
   conferenceStandings:ConferenceStandings,
   overallRecord:WonLossRecord,
   conferenceRecord:WonLossRecord
-)
+) {
+  def name: String = t.name
+  def conferenceName: String = conferenceStandings.conference.shortName
+  def nickname: String = t.nickname
+  def logo: String = t.logoUrl
+  def logoDkBg: String = logo
+  def logoLtBg: String = logo.replace("/bgd/","/bgl/")
+  def season: Int = s.year
+}
 
 object TeamPage extends Logging {
   def create(root: ScheduleRoot, teamKey: String): Option[TeamPage] = {
@@ -29,7 +37,8 @@ object TeamPage extends Logging {
       logger.info(s"teamKey=>$teamKey: ${t.id}, ${s.id}, ${gs.size}, ${conf.id}")
       val standings: ConferenceStandings = root.conferenceStandings(conf, s) //TODO move this function
       val conferenceGames: List[(Game, Option[Result])] = gs.filter(tup => root.isConferenceGame(tup._1))
-      TeamPage(t, s, d, gs.map(tup => GameLine.create(root.teamById, t, tup._1, tup._2)), standings, WonLossRecord.from(t, gs), WonLossRecord.from(t, conferenceGames))
+      val games: List[GameLine] = gs.map(tup => GameLine.create(root.teamById, t, tup._1, tup._2))
+      TeamPage(t, s, d, games, standings, WonLossRecord.from(t, gs), WonLossRecord.from(t, conferenceGames))
     }
   }
 }
