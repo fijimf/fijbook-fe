@@ -1,7 +1,6 @@
 package controllers
 
 import cats.implicits._
-import com.fijimf.deepfij.schedule.util.ServerInfo
 import com.mohiva.play.silhouette.api._
 import com.mohiva.play.silhouette.api.util.Clock
 import com.mohiva.play.silhouette.impl.providers._
@@ -14,7 +13,7 @@ import play.api.i18n.I18nSupport
 import play.api.libs.ws.WSClient
 import play.api.mvc._
 import play.api.{Configuration, Logger}
-import utils.ServiceConfig
+import utils.{ServerInfo, ServiceConfig}
 import utils.auth.DefaultEnv
 
 import scala.concurrent.duration._

@@ -3,7 +3,6 @@ package utils
 import java.time.LocalDateTime
 
 import cats.implicits._
-import com.fijimf.deepfij.schedule.util.ServerInfo
 import io.circe.Decoder
 import io.circe.generic.semiauto.deriveDecoder
 import io.circe.parser.decode

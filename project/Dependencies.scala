@@ -28,7 +28,7 @@ object Dependencies {
 
     "com.adrianhurt" %% "play-bootstrap" % "1.2-P26-B3",
 
-    "com.fijimf.deepfij" %% "fijbook-schedule" % "1.0.2g",
+    "com.fijimf.deepfij" %% "fijbook-schedule-lib" % "1.1.0",
 
 
     "org.webjars" %% "webjars-play" % "2.7.0",
