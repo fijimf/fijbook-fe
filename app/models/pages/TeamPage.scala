@@ -3,7 +3,7 @@ package models.pages
 import java.time.LocalDate
 
 import cats.implicits._
-import com.fijimf.deepfij.schedule.model.{ConferenceStandings, Game, Result, ScheduleRoot, Season, Team, WonLossRecord}
+import com.fijimf.deepfij.schedule.model.{ConferenceStandings, Game, Result, Schedule, ScheduleRoot, Season, Team, WonLossRecord}
 import play.api.Logging
 
 case class TeamPage
@@ -28,16 +28,19 @@ case class TeamPage
 object TeamPage extends Logging {
   def create(root: ScheduleRoot, teamKey: String): Option[TeamPage] = {
     for {
-      t <- root.teamByKey.get(teamKey)
-      s <- root.seasons.sortBy(-1 * _.year).headOption
+      sched: Schedule <-root.schedules.find(sched=>root.currentSeason().contains(sched.season))
+      t: Team <- sched.teamByKey.get(teamKey)
+      s = sched.season
       d = LocalDate.now()
-      gs = root.gamesForTeamWithResults(t, s)
-      conf <- root.conferenceMapping.get(s.id).flatMap(_.get(t.id))
+      gs = sched.gamesForTeamWithResults(t)
+      z<-sched.conferenceMapping.find(cm=>cm.seasonId==s.id && cm.teamId==t.id)
+      c<-sched.conferenceById.get(z.conferenceId)
+
     } yield {
-      logger.info(s"teamKey=>$teamKey: ${t.id}, ${s.id}, ${gs.size}, ${conf.id}")
-      val standings: ConferenceStandings = root.conferenceStandings(conf, s) //TODO move this function
-      val conferenceGames: List[(Game, Option[Result])] = gs.filter(tup => root.isConferenceGame(tup._1))
-      val games: List[GameLine] = gs.map(tup => GameLine.create(root.teamById, t, tup._1, tup._2))
+      logger.info(s"teamKey=>$teamKey: ${t.id}, ${s.id}, ${gs.size}, ${c.id}")
+      val standings: ConferenceStandings = sched.conferenceStandings(c)
+      val conferenceGames: List[(Game, Option[Result])] = gs.filter(tup => sched.isConferenceGame(tup._1))
+      val games: List[GameLine] = gs.map(tup => GameLine.create(sched.teamById, t, tup._1, tup._2))
       TeamPage(t, s, d, games, standings, WonLossRecord.from(t, gs), WonLossRecord.from(t, conferenceGames))
     }
   }
