@@ -8,7 +8,7 @@ scalaVersion := "2.12.8"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
-dockerBaseImage := "openjdk:11-jre-alpine"
+dockerBaseImage := "openjdk:11.0.6-jre-slim"
 
 libraryDependencies ++= Seq(
   guice,
