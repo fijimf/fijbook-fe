@@ -37,14 +37,6 @@ class SignUpController @Inject() (
    *
    * @return The result to display.
    */
-  mailerClient.send(Email(
-    subject = "Hey",
-    from = "fijimf@gmail.com",
-    to = Seq("fijimf@gmail.com"),
-
-    bodyHtml = Some("<h1>Hi</h1>")
-  ))
-
   def submit: Action[AnyContent] = silhouette.UnsecuredAction.async { implicit request =>
     SignUpForm.form.bindFromRequest.fold(
       form=>Future.successful (BadRequest(views.html.signUp(form))),
