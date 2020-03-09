@@ -18,7 +18,7 @@ class SearchController @Inject()(
   extends BaseController with I18nSupport {
 
   def search(): Action[AnyContent] = silhouette.UserAwareAction.async { implicit rs =>
-    val qs: Seq[String] = rs.request.queryString.getOrElse("q", Seq.empty[String])
+    val qs: Seq[String] = rs.getQueryString("q").toSeq
 
     Future.successful(Ok(s"OK ${qs.mkString(", ")}"))
   }
