@@ -25,6 +25,8 @@
     </appender>
 
     <logger name="play" level="INFO"/>
+    <logger name="play.mailer" level="DEBUG"/>
+
     <logger name="application" level="DEBUG"/>
     <logger name="com.mohiva" level="INFO" />
 

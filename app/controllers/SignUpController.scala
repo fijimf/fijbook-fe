@@ -11,6 +11,7 @@ import forms.SignUpForm
 import javax.inject.Inject
 import models.User
 import models.services.{AuthTokenService, UserService}
+import org.apache.commons.mail.DefaultAuthenticator
 import play.api.{Configuration, Logging}
 import play.api.i18n.{I18nSupport, Messages}
 import play.api.libs.mailer.{Email, MailerClient}
@@ -36,8 +37,25 @@ class SignUpController @Inject() (
    * Handles the submitted JSON data.
    *
    * @return The result to display.
+   *
    */
-  def submit: Action[AnyContent] = silhouette.UnsecuredAction.async { implicit request =>
+
+  import org.apache.commons.mail.Email
+  import org.apache.commons.mail.SimpleEmail
+  val email = new SimpleEmail
+  email.setHostName("email-smtp.us-east-1.amazonaws.com")
+  email.setSmtpPort(587)
+  email.setAuthenticator(new DefaultAuthenticator("AKIARSKQDH7QZU3H6I5K", "BC4v9pz22BuuzXQXt9McYuM/+xdMiQ0qZ2OkBSaJTKaO"))
+  email.setStartTLSRequired(true)
+  email.setSSLOnConnect(true)
+  email.setFrom("deepfij@gmail.com")
+  email.setSubject("TestMail")
+  email.setMsg("This is a test mail ... :-)")
+  email.addTo("fijimf@gmail.com")
+  email.send()
+
+
+     def submit: Action[AnyContent] = silhouette.UnsecuredAction.async { implicit request =>
     SignUpForm.form.bindFromRequest.fold(
       form=>Future.successful (BadRequest(views.html.signUp(form))),
       data => {
