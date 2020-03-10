@@ -40,31 +40,7 @@ class SignUpController @Inject() (
    *
    */
 
-
-
-  try {
-    import org.apache.commons.mail.SimpleEmail
-    import org.apache.commons.mail.Email
-    logger.info("Tryna send an email")
-    val email = new SimpleEmail
-    email.setHostName("email-smtp.us-east-1.amazonaws.com")
-    email.setSmtpPort(587)
-    email.setAuthenticator(new DefaultAuthenticator("", ""))
-    email.setStartTLSRequired(true)
-    email.setSSLOnConnect(true)
-    email.setFrom("deepfij@gmail.com")
-    email.setSubject("TestMail")
-    email.setMsg("This is a test mail ... :-)")
-    email.addTo("fijimf@gmail.com")
-    logger.info("Bout to send send an email")
-    email.send()
-    logger.info("Sent")
-  } catch {
-    case thr:Throwable => logger.error("Shit", thr)
-  }
-
-
-     def submit: Action[AnyContent] = silhouette.UnsecuredAction.async { implicit request =>
+  def submit: Action[AnyContent] = silhouette.UnsecuredAction.async { implicit request =>
     SignUpForm.form.bindFromRequest.fold(
       form=>Future.successful (BadRequest(views.html.signUp(form))),
       data => {
