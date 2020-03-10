@@ -49,7 +49,7 @@ class SignUpController @Inject() (
     val email = new SimpleEmail
     email.setHostName("email-smtp.us-east-1.amazonaws.com")
     email.setSmtpPort(587)
-    email.setAuthenticator(new DefaultAuthenticator("AKIARSKQDH7QZU3H6I5K", "BC4v9pz22BuuzXQXt9McYuM/+xdMiQ0qZ2OkBSaJTKaO"))
+    email.setAuthenticator(new DefaultAuthenticator("", ""))
     email.setStartTLSRequired(true)
     email.setSSLOnConnect(true)
     email.setFrom("deepfij@gmail.com")
