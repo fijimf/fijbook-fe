@@ -40,9 +40,11 @@ class SignUpController @Inject() (
    *
    */
 
-  import org.apache.commons.mail.Email
-  import org.apache.commons.mail.SimpleEmail
+
+
   try {
+    import org.apache.commons.mail.SimpleEmail
+    import org.apache.commons.mail.Email
     logger.info("Tryna send an email")
     val email = new SimpleEmail
     email.setHostName("email-smtp.us-east-1.amazonaws.com")
