@@ -3,7 +3,7 @@ import play.sbt.routes.RoutesKeys
 
 name := "fijbook-fe"
 
-version := "1.0.2"
+version := "1.1.0"
 
 scalaVersion := "2.12.8"
 
