@@ -14,10 +14,10 @@
     </appender>
 
     <logger name="play" level="INFO"/>
-
     <logger name="application" level="DEBUG"/>
+    <logger name="com.fijimf" level="DEBUG"/>
 
-    <root level="WARN">
+    <root level="DEBUG">
         <appender-ref ref="ASYNCSTDOUT"/>
     </root>
 
