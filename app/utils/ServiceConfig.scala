@@ -30,6 +30,7 @@ case class ServiceConfig(key: String, host: String, port: Int, statusEndpoint: S
 
   def refresh(config: Configuration, ws: WSClient): Future[ServiceConfig] = {
     val svc: ServiceConfig = ServiceConfig.load(key, config)
+    logger.info(s"Hitting endpoint")
     ws.url(s"$svc${svc.statusEndpoint}")
       .addHttpHeaders("Accept" -> "application/json")
       .withRequestTimeout(10000.millis)
@@ -42,20 +43,22 @@ case class ServiceConfig(key: String, host: String, port: Int, statusEndpoint: S
     resp.status match {
       case 200 =>
         decode[ServerInfo](resp.body)
-      case _ =>
-        Either.left[Throwable, ServerInfo](new RuntimeException("Unexpected return code"))
+      case code =>
+        logger.warn(s"GET received status code $code")
+        logger.warn(resp.body)
+        Either.left[Throwable, ServerInfo](new RuntimeException(s"Unexpected return code $code"))
     }
   }
 }
 
 object ServiceConfig {
-
+val logger: Logger = Logger(ServiceConfig.getClass)
 
   def load(key: String, config: Configuration): ServiceConfig = {
     val host: String = config.get[String](s"deepfij.services.$key.host")
     val port: Int = config.get[Int](s"deepfij.services.$key.port")
     val statusEndpoint: String = config.get[String](s"deepfij.services.$key.statusEndpoint")
-
+    logger.info(s"Loading status from $host:$port/$statusEndpoint")
     ServiceConfig(key, host, port, statusEndpoint, Either.left[Throwable, ServerInfo](new IllegalStateException("Service not yet initialized")), LocalDateTime.now())
   }
 
