@@ -42,7 +42,13 @@ case class ServiceConfig(key: String, host: String, port: Int, statusEndpoint: S
   def handleResponse(resp: WSResponse): Either[Throwable, ServerInfo] = {
     resp.status match {
       case 200 =>
-        decode[ServerInfo](resp.body)
+        logger.debug(resp.body)
+        decode[ServerInfo](resp.body) match {
+          case l@Left(thr) =>
+            logger.error(s"Failed decoding JSON. ${resp.body}", thr)
+            l
+          case r => r
+        }
       case code =>
         logger.warn(s"GET received status code $code")
         logger.warn(resp.body)
