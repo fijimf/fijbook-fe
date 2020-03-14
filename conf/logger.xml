@@ -15,7 +15,7 @@
 
     <logger name="play" level="INFO"/>
     <logger name="application" level="DEBUG"/>
-    <logger name="com.fijimf" level="DEBUG"/>
+    <logger name="com.fijimf.deepfij" level="DEBUG"/>
 
     <root level="DEBUG">
         <appender-ref ref="ASYNCSTDOUT"/>

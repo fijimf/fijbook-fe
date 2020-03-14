@@ -42,6 +42,7 @@ scalacOptions ++= Seq(
 )
 
 javaOptions in Universal ++= Seq(
-  "-Dpidfile.path=/dev/null"
+  "-Dpidfile.path=/dev/null",
+  "-Dlogger.file=./conf/logger.xml"
 )
 
