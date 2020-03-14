@@ -1,6 +1,7 @@
 package models.pages
 
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 import cats.implicits._
 import com.fijimf.deepfij.schedule.model.{ConferenceStandings, Game, Result, Schedule, ScheduleRoot, Season, Team, WonLossRecord}
@@ -46,7 +47,14 @@ object TeamPage extends Logging {
   }
 }
 
-case class GameLine(date: LocalDate, isAt: Boolean, oppName: String, oppKey: String, isWin: Option[Boolean], score: Option[Int], oppScore: Option[Int])
+case class GameLine(date: LocalDate, isAt: Boolean, oppName: String, oppKey: String, isWin: Option[Boolean], score: Option[Int], oppScore: Option[Int]){
+  def wlStr: String =isWin match {
+    case None=>""
+    case Some(b)=>if (b) "W" else "L"
+  }
+
+  def dateStr: String =date.format(DateTimeFormatter.ofPattern("MMM-dd-yyyy"))
+}
 
 object GameLine {
   def create(teamMap: Map[Long, Team], t: Team, g: Game, o: Option[Result]): GameLine = {

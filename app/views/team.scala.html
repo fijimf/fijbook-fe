@@ -4,10 +4,20 @@
         <div>
             <h1 style="padding-top:.333rem; font-family: 'Roboto', sans-serif; font-weight: 900; font-size: 3.5rem;"><img style="width:5rem" src=@p.logoLtBg  alt=@p.name />@{p.name} @{p.nickname}</h1>
             <h3>@p.overallRecord.wins-@p.overallRecord.losses, @p.conferenceRecord.wins-@p.conferenceRecord.losses @p.conferenceName </h3>
-            <ul>
+            <table class="table-schedule table-smushed" style="table-layout:fixed">
+                <thead>
+                    <th style="width: 7em" />
+                    <th style="width: 1em" />
+                    <th  />
+                    <th style="width: 1em" />
+                    <th style="width: 2em" />
+                    <th style="width: 2em" />
+                </thead>
+                <tbody>
             @for(gl <- p.games){
                 @{components.gameLine(gl)}
             }
-            </ul>
+                </tbody>
+            </table>
         </div>
     }

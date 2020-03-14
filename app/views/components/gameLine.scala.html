@@ -1,14 +1,20 @@
 @import models.pages.GameLine
-@(g:GameLine)
-<li>
-<span>@g.date</span>
-    <span>@if(g.isAt) {
+@(g: GameLine)
+<tr>
+    <td>@g.dateStr</td>
+    <td>@if(g.isAt) {
         @@
     } else {
         vs.
-    }</span>
-    <span><a href=@routes.ApplicationController.team(g.oppKey)> @g.oppName</a></span>
-<span>@g.isWin</span>
-<span>@g.score</span>
-<span>@g.oppScore</span>
-</li>
+    }</td>
+    <td><a href=@routes.ApplicationController.team(g.oppKey)> @g.oppName</a></td>
+    <td class="text-center">
+    @if(g.isWin.getOrElse(false)){
+        <span class="text-success">@g.wlStr</span>
+    } else {
+        <span class="text-danger">@g.wlStr</span>
+    }
+    </td>
+    <td class="text-right">@g.score</td>
+    <td class="text-right">@g.oppScore</td>
+</tr>
